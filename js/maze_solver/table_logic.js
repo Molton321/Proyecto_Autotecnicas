@@ -1,4 +1,3 @@
-// filepath: /home/notmnt903/Documentos/GitHub/Front/js/maze_solver/table_logic.js
 let matrixData = null;
 let solutionPath = null;
 let currentStepIndex = -1; // -1: origin, 0: first step, etc.
@@ -69,16 +68,21 @@ function renderMatrix(container, universe) {
             if (universe.isBlackHole(i, j)) {
                 iconPath = '../assets/icons/black_hole.svg';
                 altText = 'Agujero Negro';
-                cell.classList.add('black-hole-cell'); // Keep general class if needed
+                cell.classList.add('black-hole-cell'); 
                 isSpecialIconCell = true;
             } else if (universe.isGiantStar(i, j)) {
                 iconPath = '../assets/icons/star.svg';
                 altText = 'Estrella Gigante';
                 cell.classList.add('star-cell');
                 isSpecialIconCell = true;
-            } else if (universe.getWormholeAt(i, j)) {
+            } else if (universe.getWormholeAt(i, j)) { // Checks for wormhole entrance
                 iconPath = '../assets/icons/portal.svg';
                 altText = 'Agujero de Gusano';
+                cell.classList.add('wormhole-cell');
+                isSpecialIconCell = true;
+            } else if (universe.agujerosGusano && universe.agujerosGusano.some(wh => wh.salida && wh.salida[0] === i && wh.salida[1] === j)) { // Check for wormhole exit
+                iconPath = '../assets/icons/portal.svg';
+                altText = 'Agujero de Gusano (Salida)';
                 cell.classList.add('wormhole-cell');
                 isSpecialIconCell = true;
             } else if (universe.isRechargeZone(i, j)) {
@@ -111,9 +115,6 @@ function renderMatrix(container, universe) {
                         } else if (cost === 0) {
                             cell.style.backgroundColor = '#f8f9fa'; // Light grey for 0-cost cells
                         }
-                        // Cells with cost > 10 or other non-handled costs will have default background
-                    } else {
-                        // cell.textContent = '?'; // Fallback for non-numeric cost
                     }
                 }
             }

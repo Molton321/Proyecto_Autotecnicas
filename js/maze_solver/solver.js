@@ -1,10 +1,9 @@
-// filepath: /home/notmnt903/Documentos/GitHub/Front/js/maze_solver/solver.js
 class MazeSolver {
     constructor(universe) {
         this.universe = universe;
         this.solutionPath = null;
-        this.pathLog = []; // Para registrar la cadena de pasos
-        this.explorationCounter = 0; // Contador para logs periódicos
+        this.pathLog = [];
+        this.explorationCounter = 0;
         this.logLiveFrequency = 1000000; // Frecuencia para mostrar logs en vivo (cada N exploraciones)
     }
 
@@ -13,42 +12,43 @@ class MazeSolver {
         const startColumna = this.universe.origen[1];
         const initialCharge = this.universe.cargaInicialNave;
 
-        // Estado inicial para elementos mutables (copias profundas para la recursión)
-        const initialWormholes = JSON.parse(JSON.stringify(this.universe.agujerosGusano));
-        initialWormholes.forEach(wh => wh.usado = wh.usado || false); // Asegurar que 'usado' exista
+        // Initial mutable copies for the entire search process
+        // Ensure agujerosGusano and agujerosNegros are arrays, even if undefined/null in universe
+        const mutableWormholes = JSON.parse(JSON.stringify(this.universe.agujerosGusano || []));
+        mutableWormholes.forEach(wh => wh.usado = wh.usado || false);
 
-        const initialBlackHoles = JSON.parse(JSON.stringify(this.universe.agujerosNegros));
+        const mutableBlackHoles = JSON.parse(JSON.stringify(this.universe.agujerosNegros || []));
 
-        this.pathLog = []; // Limpiar log previo
+        this.pathLog = [];
         this.solutionPath = null;
+        this.explorationCounter = 0;
 
-        console.log(`Iniciando búsqueda desde [${startFila}, ${startColumna}] con carga ${initialCharge}. Destino: [${this.universe.destino[0]}, ${this.universe.destino[1]}]`);
-        // No es necesario duplicar este console.log en pathLog si ya se muestra al inicio.
+        const logMsgStart = `Iniciando búsqueda desde [${startFila}, ${startColumna}] con carga ${initialCharge}. Destino: [${this.universe.destino[0]}, ${this.universe.destino[1]}]`;
+        console.log(logMsgStart);
+        this.pathLog.push(logMsgStart);
+
+        const initialPath = []; // Path will be built by mutating this array
 
         const found = this._findPathRecursive(
             startFila,
             startColumna,
             initialCharge,
-            [], // currentPath
-            new Set(), // visitedInCurrentPath (para evitar ciclos en la ruta actual)
-            initialWormholes,
-            initialBlackHoles
+            initialPath, // Pass by reference, will be mutated
+            new Set(),   // visitedInCurrentPath
+            mutableWormholes,
+            mutableBlackHoles
         );
 
         if (found) {
-            console.log("¡Solución encontrada!");
-            const sol_msg = "Solución encontrada.";
-            this.pathLog.push(sol_msg);
+            this.pathLog.push("Solución encontrada."); // Original: const sol_msg = "Solución encontrada."; this.pathLog.push(sol_msg);
             this.solutionPath.forEach((step, index) => {
                 const logMsg = `Paso ${index}: Celda [${step.fila}, ${step.columna}], Carga restante: ${step.chargeAfterCell.toFixed(2)}, Acción: ${step.action}`;
-                console.log(logMsg); // Mostrar paso de la solución inmediatamente
                 this.pathLog.push(logMsg);
             });
         } else {
-            console.log("No se encontró una solución válida.");
-            const no_sol_msg = "No se encontró una solución válida después de explorar todos los caminos.";
-            this.pathLog.push(no_sol_msg);
-            console.log(no_sol_msg); // Mostrar este mensaje final también
+            const noSolMsg = "No se encontró una solución válida después de explorar todos los caminos.";
+            this.pathLog.push(noSolMsg);
+            console.log(noSolMsg); // Original had this console log as well
         }
         return this.solutionPath;
     }
@@ -58,205 +58,183 @@ class MazeSolver {
                columna >= 0 && columna < this.universe.matriz.columnas;
     }
 
+    /**
+     * Recursively finds a path from the current cell to the destination.
+     * @param {number} fila Current row
+     * @param {number} columna Current column
+     * @param {number} currentCharge Current charge of the ship
+     * @param {Array<Object>} currentPath Path taken so far (mutated during recursion)
+     * @param {Set<string>} visitedInCurrentPath Cells visited in the current path to avoid cycles
+     * @param {Array<Object>} currentWormholes State of wormholes (mutated and reverted)
+     * @param {Array<Object>} currentBlackHoles State of black holes (mutated and reverted)
+     * @returns {boolean} True if a path is found, false otherwise
+     */
+
     _findPathRecursive(fila, columna, currentCharge, currentPath, visitedInCurrentPath, currentWormholes, currentBlackHoles) {
         this.explorationCounter++;
         const cellKey = `${fila}-${columna}`;
         
         const exploringMsg = `Explorando [${fila},${columna}], Carga actual: ${currentCharge.toFixed(2)}`;
-        this.pathLog.push(exploringMsg);
+        // REMOVED: this.pathLog.push(exploringMsg); // Esta línea se eliminó para optimización de RAM
         if (this.explorationCounter % this.logLiveFrequency === 0) {
             console.log(`(Exploración #${this.explorationCounter}) ${exploringMsg}`);
         }
 
         // --- 1. Validaciones y Condiciones Base ---
         if (!this._isValidCell(fila, columna)) {
-            const invalidCellMsg = `Intento de ir a celda inválida [${fila},${columna}]. Abortando rama.`;
-            this.pathLog.push(invalidCellMsg);
-            // console.log(invalidCellMsg); // Eliminado para reducir verbosidad
-            return false; // Fuera de límites
-        }
-
-        // Es un agujero negro (según el estado actual de currentBlackHoles)?
-        if (currentBlackHoles.some(bh => bh.fila === fila && bh.columna === columna)) {
-            const blackHoleMsg = `Celda [${fila},${columna}] es un agujero negro. Bloqueada.`;
-            this.pathLog.push(blackHoleMsg);
-            // console.log(blackHoleMsg); // Eliminado
+            this.pathLog.push(`Intento de ir a celda inválida [${fila},${columna}]. Abortando rama.`); // Preservado
             return false;
         }
-
-        // Evitar ciclos en la ruta actual
+        if (currentBlackHoles.some(bh => bh.fila === fila && bh.columna === columna)) {
+            this.pathLog.push(`Celda [${fila},${columna}] es un agujero negro. Bloqueada.`); // Preservado
+            return false;
+        }
         if (visitedInCurrentPath.has(cellKey)) {
-            const cycleMsg = `Ciclo detectado en [${fila},${columna}]. Abortando rama.`;
-            this.pathLog.push(cycleMsg);
-            // console.log(cycleMsg); // Eliminado
+            this.pathLog.push(`Ciclo detectado en [${fila},${columna}]. Abortando rama.`); // Preservado
             return false;
         }
         
         let chargeAfterCell = currentCharge;
-        let actionDescription = "Mover";
+        const actionParts = []; // Para construir la descripción de la acción para el paso actual
 
-        // --- 2. Aplicar costo de la celda actual (si no es zona de recarga) ---
-        const isRecharge = this.universe.isRechargeZone(fila, columna);
-        if (!isRecharge) {
-            const cellEnergyCost = (this.universe.matrizInicial[fila] && this.universe.matrizInicial[fila][columna] !== undefined) ?
-                                   this.universe.matrizInicial[fila][columna] : 0;
-            chargeAfterCell -= cellEnergyCost;
-            actionDescription += ` (Costo celda: ${cellEnergyCost})`;
+        // --- 2. Aplicar costo/recarga de la celda actual y peajes ---
+        const isRechargeZoneCell = this.universe.isRechargeZone(fila, columna);
+        if (isRechargeZoneCell) {
+            const rechargeData = this.universe.getRechargeZone(fila, columna);
+            if (rechargeData) { // rechargeData podría ser nulo si de alguna manera no es una zona válida
+                chargeAfterCell *= rechargeData.multiplicador;
+                actionParts.push(`Zona Recarga x${rechargeData.multiplicador.toFixed(2)}`);
+                this.pathLog.push(`Celda [${fila},${columna}] es Zona Recarga. Carga ahora: ${chargeAfterCell.toFixed(2)}`);
+            }
+        } else { // No es una zona de recarga, aplicar costo de celda estándar
+            const cellEnergyCost = this.universe.matrizInicial[fila]?.[columna] ?? 0;
+            if (cellEnergyCost > 0) { // Solo aplicar costo si es positivo, evitar cambiar la carga si el costo es 0
+                chargeAfterCell -= cellEnergyCost;
+                actionParts.push(`Costo celda: ${cellEnergyCost.toFixed(2)}`);
+            }
         }
 
-        // Si la carga es <=0 DESPUÉS del costo de la celda (y no es el destino), es un camino inválido.
+        // Si la carga es <=0 DESPUÉS del costo/recarga de la celda (y no es el destino), es un camino inválido.
         if (chargeAfterCell <= 0 && !(fila === this.universe.destino[0] && columna === this.universe.destino[1])) {
-            const noEnergyCellCostMsg = `Sin energía en [${fila},${columna}] tras costo de celda (Carga: ${chargeAfterCell.toFixed(2)}). Abortando rama.`;
-            this.pathLog.push(noEnergyCellCostMsg);
-            // console.log(noEnergyCellCostMsg); // Eliminado
+            this.pathLog.push(`Sin energía en [${fila},${columna}] tras costo de celda (Carga: ${chargeAfterCell.toFixed(2)}).`); // Preservado
             return false;
         }
 
-        // Añadir celda actual al camino y marcar como visitada en esta ruta
-        visitedInCurrentPath.add(cellKey);
-        const newStep = { fila, columna, chargeBeforeCell: currentCharge, chargeAfterCell: chargeAfterCell, action: actionDescription };
-        const nextPath = [...currentPath, newStep];
-
-
-        // --- 3. Aplicar efectos especiales de la celda ---
-
-        // Celda con carga requerida (tratada como costo adicional)
+        // Celda con carga requerida (peaje)
         const requiredChargeData = this.universe.getRequiredChargeCell(fila, columna);
-        if (requiredChargeData && requiredChargeData.coordenada && requiredChargeData.coordenada.length === 2) {
-            // Validar si la nave TIENE SUFICIENTE CARGA para el requisito de la celda.
-            // La descripción dice "celdas que requieren un nivel de carga mínima para acceder".
-            // Si la carga actual (ANTES de restar cargaGastada) es menor que cargaGastada, no puede estar aquí.
-            // Esto es un poco ambiguo: ¿es un peaje o un mínimo para entrar?
-            // Asumamos que es un peaje que se resta. Si la carga se vuelve <=0, falla.
+        if (requiredChargeData?.coordenada) { // Verificar si existe coordenada, implicando datos válidos
             chargeAfterCell -= requiredChargeData.cargaGastada;
-            newStep.action += `, Peaje Carga Req.: ${requiredChargeData.cargaGastada}`;
+            actionParts.push(`Peaje Carga Req.: ${requiredChargeData.cargaGastada.toFixed(2)}`);
             if (chargeAfterCell <= 0 && !(fila === this.universe.destino[0] && columna === this.universe.destino[1])) {
-                visitedInCurrentPath.delete(cellKey); // Backtrack
-                const noEnergyTollMsg = `Sin energía tras peaje en [${fila},${columna}]. Abortando rama.`;
-                this.pathLog.push(noEnergyTollMsg);
-                // console.log(noEnergyTollMsg); // Eliminado
+                this.pathLog.push(`Sin energía tras peaje en [${fila},${columna}]. Abortando rama.`); // Preservado
                 return false;
             }
         }
         
-        // Zona de recarga
-        if (isRecharge) {
-            const rechargeZoneData = this.universe.getRechargeZone(fila, columna);
-            if (rechargeZoneData) {
-                chargeAfterCell *= rechargeZoneData.multiplicador;
-                newStep.action = `Zona Recarga x${rechargeZoneData.multiplicador}`; // Sobrescribe acción
-                const rechargeMsg = `Celda [${fila},${columna}] es Zona Recarga. Carga ahora: ${chargeAfterCell.toFixed(2)}`;
-                this.pathLog.push(rechargeMsg);
-                // console.log(rechargeMsg); // Eliminado
+        // --- Añadir celda actual al camino y marcar como visitada ---
+        visitedInCurrentPath.add(cellKey);
+        const newStep = { fila, columna, chargeBeforeCell: currentCharge, chargeAfterCell, action: "" };
+        currentPath.push(newStep); // newStep.action y chargeAfterCell podrían actualizarse más tarde por efectos
+
+        // --- 3. Aplicar efectos que modifican el entorno (Estrella Gigante) ---
+        let bhDestroyedInfo = null; // Para almacenar {bh, originalIndex} si se destruye un agujero negro
+
+        if (this.universe.isGiantStar(fila, columna)) {
+            let closestBHIdx = -1;
+            let minDist = Infinity;
+            currentBlackHoles.forEach((bh, idx) => {
+                const dist = Math.abs(bh.fila - fila) + Math.abs(bh.columna - columna);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestBHIdx = idx;
+                }
+            });
+            if (closestBHIdx !== -1) {
+                const destroyedBH = currentBlackHoles.splice(closestBHIdx, 1)[0];
+                bhDestroyedInfo = { bh: destroyedBH, originalIndex: closestBHIdx };
+                actionParts.push(`Estrella destruyó BH en [${destroyedBH.fila},${destroyedBH.columna}]`);
+                this.pathLog.push(`Estrella en [${fila},${columna}] destruyó BH en [${destroyedBH.fila},${destroyedBH.columna}].`); // Preservado
             }
         }
-        newStep.chargeAfterCell = chargeAfterCell; // Actualizar carga final en el path
+        
+        // Finalizar cadena de acción para el paso actual basado en los efectos hasta ahora
+        // Esto se actualizará si se toma un agujero de gusano
+        newStep.action = actionParts.length > 0 ? actionParts.join(", ") : "Mover";
+        if (actionParts.length === 0 && isRechargeZoneCell && newStep.action === "Mover") { // Manejar zona de recarga neutral
+             newStep.action = `Zona Recarga (neutral)`; // O específico si rechargeData fue neutral, ej. x1
+        }
+        newStep.chargeAfterCell = chargeAfterCell; // Actualizar carga en el objeto del paso, puede ser modificada por zona de recarga
 
-        // --- 4. Llegó al destino? ---
+        // --- 4. ¿Llegó al destino? ---
         if (fila === this.universe.destino[0] && columna === this.universe.destino[1]) {
-            if (chargeAfterCell > 0) { // Debe tener energía al llegar al destino
-                this.solutionPath = nextPath;
+            if (chargeAfterCell > 0) {
+                this.solutionPath = [...currentPath]; // Guardar una *copia* del camino encontrado
                 const destinationReachedMsg = `Destino [${fila},${columna}] alcanzado con carga ${chargeAfterCell.toFixed(2)}.`;
-                this.pathLog.push(destinationReachedMsg);
-                console.log(destinationReachedMsg); // Mantenido: evento importante
+                this.pathLog.push(destinationReachedMsg); // Preservado
+                console.log(destinationReachedMsg);     // Preservado
                 return true;
             } else {
                 const destinationNoChargeMsg = `Destino [${fila},${columna}] alcanzado SIN carga (${chargeAfterCell.toFixed(2)}). Inválido.`;
-                this.pathLog.push(destinationNoChargeMsg);
-                console.log(destinationNoChargeMsg); // Mantenido: evento importante
-                visitedInCurrentPath.delete(cellKey); // Backtrack
-                return false;
+                this.pathLog.push(destinationNoChargeMsg); // Preservado
+                console.log(destinationNoChargeMsg);     // Preservado
+                // Continuar con la lógica de backtrack al no retornar true
             }
         }
         
         // Si la carga es <=0 después de todos los efectos (y no es el destino), es un camino inválido.
+        // Esto también maneja el caso de llegar al destino sin carga.
         if (chargeAfterCell <= 0) {
-            visitedInCurrentPath.delete(cellKey); // Backtrack
-            const noEnergyEffectsMsg = `Sin energía tras efectos en [${fila},${columna}] (Carga: ${chargeAfterCell.toFixed(2)}). Abortando rama.`;
-            this.pathLog.push(noEnergyEffectsMsg);
-            // console.log(noEnergyEffectsMsg); // Eliminado
-            return false;
-        }
+            this.pathLog.push(`Sin energía tras efectos en [${fila},${columna}] (Carga: ${chargeAfterCell.toFixed(2)}). Abortando rama.`); // Preservado
+            // Continuar con la lógica de backtrack
+        } else {
+            // --- 5. Efectos de Movimiento Especial (Agujero de Gusano) ---
+            const wormholeIdx = currentWormholes.findIndex(wh =>
+                wh.entrada?.[0] === fila && wh.entrada?.[1] === columna && !wh.usado && wh.salida?.length === 2
+            );
 
-        // --- 5. Efectos que modifican el entorno para esta rama (Estrellas, Agujeros de Gusano) ---
-        let nextWormholesState = JSON.parse(JSON.stringify(currentWormholes));
-        let nextBlackHolesState = JSON.parse(JSON.stringify(currentBlackHoles));
+            if (wormholeIdx !== -1) {
+                const wh = currentWormholes[wormholeIdx];
+                
+                // Actualizar cadena de acción para el paso actual para incluir el uso del agujero de gusano
+                const wormholeActionDescription = `Usó Gusano de [${wh.entrada[0]},${wh.entrada[1]}] a [${wh.salida[0]},${wh.salida[1]}]`;
+                newStep.action = (newStep.action === "Mover" || newStep.action === "Zona Recarga (neutral)") 
+                               ? wormholeActionDescription 
+                               : `${newStep.action}, ${wormholeActionDescription}`;
+                
+                this.pathLog.push(`Usando agujero de gusano desde [${fila},${columna}] hacia [${wh.salida[0]},${wh.salida[1]}].`); // Preservado
+                wh.usado = true;
 
-        // Estrella Gigante: Intenta destruir el agujero negro más cercano
-        if (this.universe.isGiantStar(fila, columna)) {
-            let closestBlackHoleIndex = -1;
-            let minDistance = Infinity;
-            for (let i = 0; i < nextBlackHolesState.length; i++) {
-                const bh = nextBlackHolesState[i];
-                const distance = Math.abs(bh.fila - fila) + Math.abs(bh.columna - columna);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestBlackHoleIndex = i;
+                if (this._findPathRecursive(wh.salida[0], wh.salida[1], chargeAfterCell, currentPath, visitedInCurrentPath, currentWormholes, currentBlackHoles)) {
+                    return true; 
+                }
+                
+                wh.usado = false; // Retroceder estado 'usado' del agujero de gusano
+                this.pathLog.push(`Retorno de agujero de gusano desde [${fila},${columna}] no llevó a solución. Abortando rama del gusano.`); // Preservado
+                // Si el camino del agujero de gusano falla, esta rama específica del camino (usando el agujero de gusano) falla.
+                // Continuar con la lógica principal de backtrack para la celda actual (fila, columna).
+            } else {
+                 // --- 6. Movimientos recursivos (Arriba, Abajo, Izquierda, Derecha) ---
+                 // Solo si no se tomó un agujero de gusano desde esta celda.
+                const moves = [
+                    { df: -1, dc: 0, dir: "Arriba" }, { df: 1,  dc: 0, dir: "Abajo" },
+                    { df: 0,  dc: -1, dir: "Izquierda" }, { df: 0,  dc: 1, dir: "Derecha" }
+                ];
+
+                for (const move of moves) {
+                    if (this._findPathRecursive(fila + move.df, columna + move.dc, chargeAfterCell, currentPath, visitedInCurrentPath, currentWormholes, currentBlackHoles)) {
+                        return true;
+                    }
                 }
             }
-            if (closestBlackHoleIndex !== -1) {
-                const destroyedBH = nextBlackHolesState.splice(closestBlackHoleIndex, 1)[0];
-                newStep.action += `, Estrella destruyó BH en [${destroyedBH.fila},${destroyedBH.columna}]`;
-                const starEffectMsg = `Estrella en [${fila},${columna}] destruyó BH en [${destroyedBH.fila},${destroyedBH.columna}].`;
-                this.pathLog.push(starEffectMsg);
-                // console.log(starEffectMsg); // Eliminado
-            }
         }
 
-        // Agujero de Gusano: Si existe uno en la celda actual y no está usado, se usa.
-        // La especificación dice "Se consumen al usarse".
-        const wormholeIndex = nextWormholesState.findIndex(wh =>
-            wh.entrada && wh.entrada.length === 2 && wh.entrada[0] === fila && wh.entrada[1] === columna && !wh.usado &&
-            wh.salida && wh.salida.length === 2
-        );
-
-        if (wormholeIndex !== -1) {
-            const wormholeToUse = nextWormholesState[wormholeIndex];
-            nextWormholesState[wormholeIndex].usado = true; // Marcar como usado en la copia local
-
-            newStep.action += `, Usó Gusano de [${wormholeToUse.entrada[0]},${wormholeToUse.entrada[1]}] a [${wormholeToUse.salida[0]},${wormholeToUse.salida[1]}]`;
-            const wormholeUsedMsg = `Usando agujero de gusano desde [${fila},${columna}] hacia [${wormholeToUse.salida[0]},${wormholeToUse.salida[1]}].`;
-            this.pathLog.push(wormholeUsedMsg);
-            // console.log(wormholeUsedMsg); // Eliminado
-
-            if (this._findPathRecursive(wormholeToUse.salida[0], wormholeToUse.salida[1], chargeAfterCell, nextPath, visitedInCurrentPath, nextWormholesState, nextBlackHolesState)) {
-                return true;
-            }
-            // Si usar el agujero de gusano no lleva a una solución, esta rama específica (usando el gusano) falla.
-            // No se intentan otros movimientos desde esta celda SI SE USA el gusano, según la interpretación de "se consumen al usarse"
-            // y que es un túnel directo.
-            visitedInCurrentPath.delete(cellKey); // Backtrack
-            const wormholeFailMsg = `Retorno de agujero de gusano desde [${fila},${columna}] no llevó a solución. Abortando rama del gusano.`;
-            this.pathLog.push(wormholeFailMsg);
-            // console.log(wormholeFailMsg); // Eliminado
-            return false;
+        // --- Retroceso (Backtrack) ---
+        if (bhDestroyedInfo) { // Restaurar BH destruido por estrella si no se encontró solución desde esta celda/rama
+            currentBlackHoles.splice(bhDestroyedInfo.originalIndex, 0, bhDestroyedInfo.bh);
         }
-
-        // --- 6. Movimientos recursivos (Arriba, Abajo, Izquierda, Derecha) ---
-        const moves = [
-            { df: -1, dc: 0, dir: "Arriba" },
-            { df: 1,  dc: 0, dir: "Abajo" },
-            { df: 0,  dc: -1, dir: "Izquierda" },
-            { df: 0,  dc: 1, dir: "Derecha" }
-        ];
-
-        for (const move of moves) {
-            const nextFila = fila + move.df;
-            const nextColumna = columna + move.dc;
-            
-            // this.pathLog.push(`Desde [${fila},${columna}] (Carga: ${chargeAfterCell.toFixed(2)}), intentando mover ${move.dir} a [${nextFila},${nextColumna}].`);
-            // console.log(`Desde [${fila},${columna}] (Carga: ${chargeAfterCell.toFixed(2)}), intentando mover ${move.dir} a [${nextFila},${nextColumna}].`); // Opcional: log por cada intento de movimiento
-
-            if (this._findPathRecursive(nextFila, nextColumna, chargeAfterCell, nextPath, visitedInCurrentPath, nextWormholesState, nextBlackHolesState)) {
-                return true;
-            }
-        }
-
-        // --- Backtrack ---\
+        currentPath.pop(); // Eliminar paso actual del camino
         visitedInCurrentPath.delete(cellKey);
-        const backtrackMsg = `Backtrack desde [${fila},${columna}]. Ningún movimiento desde aquí llevó a solución.`;
-        this.pathLog.push(backtrackMsg);
-        // console.log(backtrackMsg); // Eliminado
+        this.pathLog.push(`Backtrack desde [${fila},${columna}]. Ningún movimiento desde aquí llevó a solución.`); // Preservado
         return false;
     }
 
