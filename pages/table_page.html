@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Laberinto - Paso a Paso</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="table-page-layout"> <!-- Added class -->
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-rocket"></i>
+                <h1>Laberinto Paso a Paso</h1>
+            </div>
+            <p class="subtitle">Selecciona un archivo JSON de laberinto y sigue la solución paso a paso.</p>
+        </header>
+
+        <section class="file-load-section"> <!-- Inline style removed -->
+            <div class="input-section"> <!-- Inline style removed -->
+                <h2><i class="fas fa-upload"></i> Cargar Laberinto</h2> <!-- Inline style removed -->
+                <div class="file-input-wrapper"> <!-- Inline style removed -->
+                    <input type="file" id="jsonFile" class="file-input" accept=".json"> <!-- Inline style removed -->
+                    <label for="jsonFile" class="file-label" id="fileLabel"> <!-- Inline style removed -->
+                        <i class="fas fa-file-code"></i>
+                        <span>Seleccionar archivo .json</span>
+                    </label>
+                </div>
+                <p id="fileName">Ningún archivo seleccionado.</p> <!-- Inline style removed -->
+                <button id="loadMatrixButton" class="validate-btn" disabled> <!-- Inline style removed -->
+                    <i class="fas fa-cogs"></i> Cargar y Visualizar Laberinto
+                </button>
+            </div>
+        </section>
+
+        <section class="maze-section">
+            <div class="maze-controls">
+                <button id="next-step-button">Paso Siguiente</button>
+                <p id="solution-status">Por favor, carga un archivo de laberinto.</p>
+            </div>
+            <div id="matrix-container">
+                <!-- La matriz se generará aquí por JavaScript -->
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2025 Tu Proyecto. Todos los derechos reservados.
+                <a href="../index.html" class="validate-btn">Volver al Inicio</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Scripts: Universe and MazeSolver must be loaded before table_logic.js -->
+    <script src="../js/maze_solver/universe.js"></script>
+    <script src="../js/maze_solver/solver.js"></script>
+    <script src="../js/maze_solver/table_logic.js"></script>
+</body>
+</html>
