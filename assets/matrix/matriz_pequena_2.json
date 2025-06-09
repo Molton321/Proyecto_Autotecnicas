@@ -1,0 +1,50 @@
+{
+  "matriz": {
+    "filas": 8,
+    "columnas": 10
+  },
+  "origen": [7, 0],
+  "destino": [0, 9],
+  "agujerosNegros": [
+    [1, 1],
+    [6, 8]
+  ],
+  "estrellasGigantes": [
+    [3, 3]
+  ],
+  "agujerosGusano": [
+    {
+      "entrada": [2, 5],
+      "salida": [5, 2]
+    },
+    {
+      "entrada": [7, 2],
+      "salida": [1, 8]
+    }
+  ],
+  "zonasRecarga": [
+    [0, 5, 3],
+    [5, 5, 2]
+  ],
+  "celdasCargaRequerida": [
+    {
+      "coordenada": [2, 2],
+      "cargaGastada": 10
+    },
+    {
+      "coordenada": [6, 6],
+      "cargaGastada": 8
+    }
+  ],
+  "cargaInicial": 100,
+  "matrizInicial": [
+    [5, 1, 2, 3, 4, 0, 6, 7, 8, 9],
+    [9, 0, 8, 7, 6, 5, 4, 3, 2, 1],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+    [0, 9, 8, 0, 6, 5, 4, 3, 2, 1],
+    [1, 2, 3, 4, 5, 0, 7, 8, 9, 0],
+    [0, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+    [1, 2, 3, 4, 5, 6, 7, 0, 9, 0],
+    [0, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+  ]
+}
