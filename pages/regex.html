@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFD Validator - Patrullas Sintácticas</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>AFD Validator</h1>
+                </div>
+                <p class="subtitle">Detectar Cadenas Válidas</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- AFD Information Cards -->
+            <section class="afd-info">
+                <div class="info-card">
+                    <div class="card-header serial">
+                        <i class="fas fa-barcode"></i>
+                        <h3>Número de Serie</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="format">
+                            <strong>Formato:</strong> <code>SN-LLNN-YYMM</code>
+                        </div>
+                        <div class="example">
+                            <strong>Ejemplo:</strong> <span class="valid-example">SN-AK45-2405</span>
+                        </div>
+                        <div class="description">
+                            SN + guion + 2 letras + 2 números + guion + año y mes
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header plate">
+                        <i class="fas fa-car"></i>
+                        <h3>Placa Vehicular</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="format">
+                            <strong>Formato:</strong> <code>ABC-1234-Q</code>
+                        </div>
+                        <div class="example">
+                            <strong>Ejemplo:</strong> <span class="valid-example">PQR-1298-M</span>
+                        </div>
+                        <div class="description">
+                            3 letras + guion + 4 dígitos + guion + 1 letra
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Validator Section -->
+            <section class="validator-section">
+                <div class="validator-card">
+                    <div class="validator-header">
+                        <h2><i class="fas fa-check-circle"></i> Validador de Cadenas</h2>
+                    </div>
+
+                    <!-- File Input -->
+                    <div class="input-section">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="fileInput" accept=".txt" class="file-input">
+                            <label for="fileInput" class="file-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Seleccionar archivo .txt</span>
+                            </label>
+                        </div>
+
+                        <!-- Validator Type Selection -->
+                        <div class="type-selector">
+                            <label class="type-option">
+                                <input type="radio" name="validatorType" value="serial" checked>
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">Número de Serie</span>
+                            </label>
+                            <label class="type-option">
+                                <input type="radio" name="validatorType" value="plate">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">Placa Vehicular</span>
+                            </label>
+                        </div>
+
+                        <!-- Manual Input -->
+                        <div class="manual-input">
+                            <label for="manualText">O ingresa cadenas manualmente (una por línea):</label>
+                            <textarea id="manualText"
+                                placeholder="SN-AK45-2405&#10;SN-XY12-2301&#10;PQR-1298-M"></textarea>
+                        </div>
+
+                        <button id="validateBtn" class="validate-btn">
+                            <i class="fas fa-play"></i>
+                            Validar Cadenas
+                        </button>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="results" class="results-section" style="display: none;">
+                        <div class="results-header">
+                            <h3><i class="fas fa-clipboard-list"></i> Resultados de Validación</h3>
+                            <div class="results-summary">
+                                <span id="validCount" class="count valid">0 válidas</span>
+                                <span id="invalidCount" class="count invalid">0 inválidas</span>
+                            </div>
+                        </div>
+                        <div id="resultsList" class="results-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- State Diagrams -->
+            <section class="diagrams-section">
+                <h2><i class="fas fa-project-diagram"></i> Diagramas de Estados</h2>
+
+                <div class="diagram-container">
+                    <h3>AFD - Número de Serie</h3>
+                    <div class="diagram serial-diagram">
+                        <div class="states-flow">
+                            <div class="state initial">q0</div>
+                            <div class="arrow">S</div>
+                            <div class="state">q1</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q2</div>
+                            <div class="arrow">-</div>
+                            <div class="state">q3</div>
+                            <div class="arrow">L</div>
+                            <div class="state">q4</div>
+                            <div class="arrow">L</div>
+                            <div class="state">q5</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q6</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q7</div>
+                            <div class="arrow">-</div>
+                            <div class="state">q8</div>
+                            <div class="arrow">Y</div>
+                            <div class="state">q9</div>
+                            <div class="arrow">Y</div>
+                            <div class="state">q10</div>
+                            <div class="arrow">M</div>
+                            <div class="state">q11</div>
+                            <div class="arrow">M</div>
+                            <div class="state final">qf</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <h3>AFD - Placa Vehicular</h3>
+                    <div class="diagram plate-diagram">
+                        <div class="states-flow">
+                            <div class="state initial">q0</div>
+                            <div class="arrow">L</div>
+                            <div class="state">q1</div>
+                            <div class="arrow">L</div>
+                            <div class="state">q2</div>
+                            <div class="arrow">L</div>
+                            <div class="state">q3</div>
+                            <div class="arrow">-</div>
+                            <div class="state">q4</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q5</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q6</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q7</div>
+                            <div class="arrow">N</div>
+                            <div class="state">q8</div>
+                            <div class="arrow">-</div>
+                            <div class="state">q9</div>
+                            <div class="arrow">L</div>
+                            <div class="state final">qf</div>
+                        </div> <br> <br>
+                        <a href="../index.html" class="validate-btn">Volver al Inicio</a>
+                    </div>
+                </div>
+                
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 AFD Validator - Módulo 2: Lo que Dios quiera</p>
+            
+        </footer>
+    </div>
+
+    <script src="../js/automatas/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,878 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    display: flex; /* Added */
+    flex-direction: column; /* Added */
+    align-items: center; /* Added to center content like .container or #matrixDisplaySection */
+    padding: 20px; /* Added some padding to body */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.header-content .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.header-content .logo i {
+    font-size: 2.5em;
+    color: #667eea;
+}
+
+.header-content h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.subtitle {
+    font-size: 1.2em;
+    color: #666;
+    font-weight: 400;
+}
+
+/* AFD Info Cards */
+.afd-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    padding: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.card-header.serial {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.card-header.plate {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+}
+
+.card-header i {
+    font-size: 1.8em;
+}
+
+.card-header h3 {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.format,
+.example,
+.description {
+    margin-bottom: 15px;
+}
+
+.format code {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #e83e8c;
+}
+
+.valid-example {
+    background: #d4edda;
+    color: #155724;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+/* Validator Section */
+.validator-section {
+    margin-bottom: 40px;
+}
+
+.validator-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.validator-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.validator-header h2 {
+    font-size: 2em;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.validator-header i {
+    color: #48bb78;
+}
+
+/* Input Section */
+.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.file-input-wrapper {
+    position: relative;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    border: 3px dashed #cbd5e0;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+}
+
+.file-label:hover {
+    border-color: #667eea;
+    background: #edf2f7;
+}
+
+.file-label i {
+    font-size: 2em;
+    color: #667eea;
+}
+
+.file-label span {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.file-selected {
+    border-color: #48bb78 !important;
+    background: #f0fff4 !important;
+}
+
+.file-selected i {
+    color: #48bb78 !important;
+}
+
+/* Type Selector */
+.type-selector {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.type-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.type-option input[type="radio"] {
+    display: none;
+}
+
+.radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.type-option input[type="radio"]:checked+.radio-custom {
+    border-color: #667eea;
+    background: #667eea;
+}
+
+.type-option input[type="radio"]:checked+.radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Manual Input */
+.manual-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.manual-input label {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.manual-input textarea {
+    padding: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1em;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.3s ease;
+}
+
+.manual-input textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Validate Button */
+.validate-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.validate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.validate-btn:active {
+    transform: translateY(0);
+}
+
+.validate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Results Section */
+.results-section {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #e2e8f0;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.results-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #2d3748;
+}
+
+.results-summary {
+    display: flex;
+    gap: 15px;
+}
+
+.count {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.count.valid {
+    background: #d4edda;
+    color: #155724;
+}
+
+.count.invalid {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.result-item {
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 5px solid;
+    transition: all 0.3s ease;
+}
+
+.result-item:hover {
+    transform: translateX(5px);
+}
+
+.result-item.valid {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+.result-item.invalid {
+    background: #f8d7da;
+    border-left-color: #dc3545;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.result-icon {
+    font-size: 1.2em;
+}
+
+.result-icon.valid {
+    color: #28a745;
+}
+
+.result-icon.invalid {
+    color: #dc3545;
+}
+
+.result-line {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.result-string {
+    font-family: 'Courier New', monospace;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+
+.result-message {
+    color: #666;
+    font-size: 0.95em;
+}
+
+/* Diagrams Section */
+.diagrams-section {
+    margin-bottom: 40px;
+}
+
+.diagrams-section h2 {
+    text-align: center;
+    color: #2d3748;
+    font-size: 2em;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.diagrams-section h2 i {
+    color: #667eea;
+}
+
+.diagram-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.diagram-container h3 {
+    text-align: center;
+    color: #2d3748;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+}
+
+.states-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.state {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #2d3748;
+    border: 3px solid #a0aec0;
+    transition: all 0.3s ease;
+}
+
+.state:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.state.initial {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border-color: #2f855a;
+}
+
+.state.final {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: #553c9a;
+}
+
+/* Styles for Matrix Display (table_page.html) */
+#matrixDisplaySection {
+    margin-top: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 90%; /* Use a good portion of the available width */
+    max-width: 1600px; /* Max width for very large screens */
+    margin-left: auto; /* Center the section */
+    margin-right: auto;
+    display: flex; /* Use flex to manage layout of children, e.g., centering the grid */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children (like the grid container) horizontally */
+}
+
+#matrixGridContainer {
+    display: grid;
+    gap: 2px; /* Small gap between cells */
+    background-color: #ccc; /* Border color for the grid */
+    border: 1px solid #ccc;
+    margin: 20px 0; /* Adjusted margin, horizontal centering handled by parent flex */
+    overflow: auto; /* Enable scrollbars if content exceeds dimensions */
+    width: fit-content; /* Grid itself should be as wide as its content */
+    max-width: 100%; /* But not wider than its parent section */
+    max-height: 88vh; /* Max height of 88% of viewport height, then scroll */
+}
+
+.matrix-cell {
+    width: 20px; /* Fixed width */
+    height: 20px; /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff; /* Default cell background */
+    font-size: 0.6em; /* Adjusted font size for smaller cells */
+    font-weight: bold;
+    border: 1px solid #eee; /* Light border for cells */
+    box-sizing: border-box; /* Include padding and border in the element\'s total width and height */
+}
+
+.matrix-cell svg {
+    width: 16px; /* Explicit size for SVGs in small cells */
+    height: 16px; /* Explicit size for SVGs in small cells */
+}
+
+/* Tooltip styling (browser default, but can be enhanced if needed) */
+.matrix-cell[title] {
+    cursor: help;
+}
+
+/* Error message styling for JSON processing */
+#jsonErrorDisplay {
+    color: #dc3545; /* Bootstrap danger color */
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* File input specific styling if needed for table_page.html */
+#jsonFileInputLabel {
+    display: block; /* Or inline-block */
+    margin: 15px auto;
+    padding: 12px 20px;
+    background-color: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    max-width: 300px;
+}
+
+#jsonFileInputLabel:hover {
+    background-color: #5a67d8;
+}
+
+#fileNameDisplay {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #555;
+    text-align: center;
+}
+
+#processJsonBtn {
+    display: block;
+    margin: 15px auto;
+    padding: 12px 25px;
+    background-color: #48bb78; /* Green */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#processJsonBtn:disabled {
+    background-color: #a0aec0; /* Gray when disabled */
+    cursor: not-allowed;
+}
+
+#processJsonBtn:hover:not(:disabled) {
+    background-color: #38a169;
+}
+
+/* Styles for table_page.html */
+.table-page-layout {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.table-page-layout .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.table-page-layout .header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.table-page-layout .header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.table-page-layout .header .logo i {
+    font-size: 2em;
+    color: #007bff; /* Primary color */
+    margin-right: 10px;
+}
+
+.table-page-layout .header h1 {
+    font-size: 2em;
+    color: #333;
+    margin: 0;
+}
+
+.table-page-layout .subtitle {
+    font-size: 1em;
+    color: #666;
+}
+
+.table-page-layout .maze-section {
+    text-align: center;
+}
+
+.table-page-layout .maze-controls {
+    margin-bottom: 20px;
+}
+
+.table-page-layout #next-step-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.table-page-layout #next-step-button:hover {
+    background-color: #0056b3;
+}
+
+.table-page-layout #next-step-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.table-page-layout #solution-status {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #555;
+    min-height: 20px;
+}
+
+.table-page-layout #matrix-container { /* Adapted from matrixGridContainer */
+    display: grid;
+    border: 1px solid #ccc; /* Lighter border */
+    margin: 20px auto; /* Centered */
+    justify-content: center; /* Center grid items if grid itself is wider */
+    background-color: #f9f9f9; /* Light background for the grid */
+    padding: 5px; /* Padding around the cells */
+    border-radius: 4px;
+}
+
+.table-page-layout .matrix-cell {
+    width: 28px; /* Slightly smaller for potentially large matrices */
+    height: 28px;
+    border: 1px solid #ddd; /* Lighter cell borders */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7em; /* Smaller font for cell content */
+    box-sizing: border-box;
+    background-color: #fff; /* Default cell background */
+    color: #333; /* Default text color for costs */
+    font-weight: 500;
+}
+
+.table-page-layout .cell-icon {
+    width: 70%; /* Adjust icon size within cell */
+    height: 70%;
+    object-fit: contain;
+}
+
+.table-page-layout .black-hole-cell,
+.table-page-layout .star-cell,
+.table-page-layout .wormhole-cell,
+.table-page-layout .recharge-cell {
+    background-color: #e9ecef; /* Slightly different background for icon cells if needed */
+}
+
+.table-page-layout .spaceship { /* Current position of the spaceship */
+    background-color: #28a745 !important; /* Green for spaceship */
+    color: white;
+    font-weight: bold;
+    border: 2px solid #1e7e34; /* Darker green border */
+}
+
+.table-page-layout .origin {
+    background-color: #ffc107; /* Yellow for origin */
+    color: #333;
+}
+
+.table-page-layout .destination {
+    background-color: #dc3545; /* Red for destination */
+    color: white;
+}
+
+.table-page-layout .black-hole {
+    background-color: #343a40; /* Dark grey for black hole */
+    color: white;
+}
+
+.table-page-layout .path { /* Cells that are part of the solution path already traversed */
+    background-color: #17a2b8; /* Cyan for path */
+    opacity: 0.7;
+}
+
+.table-page-layout .current-step { /* More specific highlighting for the current step if needed, can be same as .spaceship */
+    background-color: #28a745 !important;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #1e7e34;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.7); /* Glow effect */
+}
+
+.table-page-layout .footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.table-page-layout .footer a.validate-btn { /* Style for the return button */
+    color: #fff;
+    background-color: #6c757d; /* Secondary button color */
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 20px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.table-page-layout .footer a.validate-btn:hover {
+    background-color: #5a6268;
+}
+
+/* New styles for file upload section in table_page.html */
+.table-page-layout .file-load-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.table-page-layout .input-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-page-layout .input-section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.table-page-layout .file-input-wrapper {
+    margin-bottom: 15px;
+}
+
+.table-page-layout .file-input {
+    display: none; /* Hides the default file input */
+}
+
+.table-page-layout .file-label {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.table-page-layout .file-label:hover {
+    background-color: #0056b3;
+}
+
+.table-page-layout #fileName {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.table-page-layout #loadMatrixButton {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.table-page-layout #loadMatrixButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Path Visualization Styles (already in styles.css, ensure no conflict or adapt if specific to table_page) */
+/* These might be general enough, or prefix with .table-page-layout if they are truly specific */
+.table-page-layout .matrix-cell.path-cell {
+    background-color: rgba(0, 255, 0, 0.3); /* Light green for path */
+}
+
+.table-page-layout .matrix-cell.path-start {
+    background-color: rgba(0, 0, 255, 0.5); /* Blue for start */
+}
+
+.table-page-layout .matrix-cell.path-end {
+    background-color: rgba(255, 0, 0, 0.5); /* Red for end */
+}
